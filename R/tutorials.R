@@ -1,4 +1,7 @@
 
+### Goal here is to learn about the animal model, and figure out how you can run it without a pedigree.
+### Use sample data from Pierre de Villemereuil’s tutorial with and without a pedigree. Compare results.
+
 
 # Load packages -----------------------------------------------------------
 # library(tidyverse)
@@ -6,14 +9,14 @@ library(MCMCglmm)
 
 
 
-# working with Pierre de Villemereuil’s tutorial --------------------------
+# working with Pierre de Villemereuil’s tutorial (http://devillemereuil.legtux.org/wp-content/uploads/2012/12/tuto_en.pdf) --------------------------
 
 ## read in data
 pedigreemulti<-read.table('data-raw/pedigreemulti.txt',header=T)
 datamulti<-read.table('data-raw/datamulti.txt',header=T)
 head(datamulti)
 
-## define the prior
+## specify priors for the animal effect and the residual variance
 prior<- list(R=list(V=diag(2)/2,nu=2),
 		 G=list(G1=list(V=diag(2)/2,nu=2)))
 
@@ -112,6 +115,8 @@ Glist
 
 
 
+
+# Wilson et al 2010 tutorial ----------------------------------------------
 
 # read in data from the Wilson tutorial and get it in order  ------------------------------------------------------------
 Data<-as.data.frame(read.table(file= "data-raw/gryphon.txt",header=TRUE))
