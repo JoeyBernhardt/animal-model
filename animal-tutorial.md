@@ -2,8 +2,11 @@
 
 
 
-Goal here is to learn about the animal model, and figure out how you can run it without a pedigree.
-Use sample data from Pierre de Villemereuil’s tutorial with and without a pedigree. Compare results.
+* Goal here is to learn about the animal model, and figure out how you can run it without a pedigree.
+
+* Use sample data from [Pierre de Villemereuil’s tutorial](http://devillemereuil.legtux.org/wp-content/uploads/2012/12/tuto_en.pdf) with and without a pedigree. Compare results.
+
+* Figure out what the differences in the results mean!
 
 
 
@@ -17,7 +20,53 @@ Read in data
 ```r
 pedigreemulti <- read.table('data-raw/pedigreemulti.txt',header=T)
 datamulti <- read.table('data-raw/datamulti.txt',header=T)
-models_run <- load("data-processed/modelmulti.RData") 
+models_run <- load("data-processed/modelmulti.RData") ## this has all the outputs from the models run in this script.
+```
+
+Glance at the data
+
+```r
+head(datamulti)
+```
+
+```
+##   animal  phen1  phen2
+## 1      1 11.006 -1.864
+## 2      2 10.047 -0.770
+## 3      3  9.299  0.835
+## 4      4  9.870  0.769
+## 5      5 10.466  2.916
+## 6      6 10.131 -0.821
+```
+
+
+```r
+head(pedigreemulti)
+```
+
+```
+##   animal sire dam
+## 1      1   NA  NA
+## 2      2   NA  NA
+## 3      3   NA  NA
+## 4      4   NA  NA
+## 5      5   NA  NA
+## 6      6   NA  NA
+```
+
+
+```r
+tail(pedigreemulti)
+```
+
+```
+##      animal sire dam
+## 995     995  801 853
+## 996     996  788 843
+## 997     997  792 829
+## 998     998  780 804
+## 999     999  814 833
+## 1000   1000  805 853
 ```
 
 
@@ -45,7 +94,7 @@ modelmulti <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-1 allow
 					 thin=10)
 ```
 
-Look at the outputs
+Look at the outputs.
 
 
 ```r
@@ -84,6 +133,16 @@ summary(modelmulti)
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
+
+Plot it. 
+
+
+```r
+plot(modelmulti$Sol)
+```
+
+![](animal-tutorial_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 
 Calculate heritabilities
 
@@ -133,6 +192,56 @@ modelmulti_no_ped <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-
 					   burnin=1000,
 					   thin=10)
 ```
+
+
+Look at output
+
+```r
+summary(modelmulti_no_ped)
+```
+
+```
+## 
+##  Iterations = 1001:99991
+##  Thinning interval  = 10
+##  Sample size  = 9900 
+## 
+##  DIC: 5341.427 
+## 
+##  G-structure:  ~us(trait):animal
+## 
+##                              post.mean l-95% CI u-95% CI eff.samp
+## traitphen1:traitphen1.animal    1.0196   0.1535   1.9159    88.42
+## traitphen2:traitphen1.animal    0.3556  -0.2547   0.9838    84.51
+## traitphen1:traitphen2.animal    0.3556  -0.2547   0.9838    84.51
+## traitphen2:traitphen2.animal    0.7055   0.1686   1.2861   127.51
+## 
+##  R-structure:  ~us(trait):units
+## 
+##                             post.mean l-95% CI u-95% CI eff.samp
+## traitphen1:traitphen1.units    1.1187   0.1966    1.964    86.08
+## traitphen2:traitphen1.units    0.5022  -0.1354    1.112    88.44
+## traitphen1:traitphen2.units    0.5022  -0.1354    1.112    88.44
+## traitphen2:traitphen2.units    0.7764   0.1876    1.314   124.19
+## 
+##  Location effects: cbind(phen1, phen2) ~ trait - 1 
+## 
+##            post.mean l-95% CI u-95% CI eff.samp  pMCMC    
+## traitphen1  10.00470  9.91761 10.09763     9900 <1e-04 ***
+## traitphen2  -0.02263 -0.10141  0.05055     9900  0.566    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Plot it. 
+
+
+```r
+plot(modelmulti_no_ped$Sol)
+```
+
+![](animal-tutorial_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+
 
 Calculate heritabilities
 

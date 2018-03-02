@@ -9,8 +9,11 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Goal here is to learn about the animal model, and figure out how you can run it without a pedigree.
-Use sample data from Pierre de Villemereuil’s tutorial with and without a pedigree. Compare results.
+* Goal here is to learn about the animal model, and figure out how you can run it without a pedigree.
+
+* Use sample data from [Pierre de Villemereuil’s tutorial](http://devillemereuil.legtux.org/wp-content/uploads/2012/12/tuto_en.pdf) with and without a pedigree. Compare results.
+
+* Figure out what the differences in the results mean!
 
 
 ```{r, warning = FALSE, message = FALSE}
@@ -22,7 +25,20 @@ Read in data
 ```{r}
 pedigreemulti <- read.table('data-raw/pedigreemulti.txt',header=T)
 datamulti <- read.table('data-raw/datamulti.txt',header=T)
-models_run <- load("data-processed/modelmulti.RData") 
+models_run <- load("data-processed/modelmulti.RData") ## this has all the outputs from the models run in this script.
+```
+
+Glance at the data
+```{r}
+head(datamulti)
+```
+
+```{r}
+head(pedigreemulti)
+```
+
+```{r}
+tail(pedigreemulti)
 ```
 
 
@@ -49,11 +65,18 @@ modelmulti <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-1 allow
 
 ```
 
-Look at the outputs
+Look at the outputs.
 
 ```{r}
 summary(modelmulti)
 ```
+
+Plot it. 
+
+```{r}
+plot(modelmulti$Sol)
+```
+
 
 Calculate heritabilities
 
@@ -85,6 +108,19 @@ modelmulti_no_ped <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-
 					   burnin=1000,
 					   thin=10)
 ```
+
+
+Look at output
+```{r}
+summary(modelmulti_no_ped)
+```
+
+Plot it. 
+
+```{r}
+plot(modelmulti_no_ped$Sol)
+```
+
 
 Calculate heritabilities
 
