@@ -1,0 +1,105 @@
+---
+title: "animal-model-tutorial"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Goal here is to learn about the animal model, and figure out how you can run it without a pedigree.
+Use sample data from Pierre de Villemereuil’s tutorial with and without a pedigree. Compare results.
+
+
+```{r, warning = FALSE, message = FALSE}
+library(MCMCglmm)
+```
+
+Read in data
+
+```{r}
+pedigreemulti <- read.table('data-raw/pedigreemulti.txt',header=T)
+datamulti <- read.table('data-raw/datamulti.txt',header=T)
+models_run <- load("data-processed/modelmulti.RData") 
+```
+
+
+Specify priors for the animal effect and the residual variance
+
+```{r}
+prior <- list(R=list(V=diag(2)/2,nu=2),
+		 G=list(G1=list(V=diag(2)/2,nu=2)))
+```
+
+Set up and run model
+
+```{r,eval=FALSE}
+modelmulti <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-1 allows us to estimate the mean of each trait, instead of the contrast between the two traits
+					 random=~us(trait):animal, ##  define the structure of the variance-covariance matrix for the random effects 
+					 rcov=~us(trait):units,  ##  define the structure of the variance-covariance matrix for the residual variances
+					 family=c("gaussian","gaussian"), ## family requires a vector with the data distribution of each trait
+					 prior=prior,
+					 pedigree=pedigreemulti, ## specifies the pedigree; one row for each individual, each column specifies the parents for each individual
+					 data=datamulti, ## includes two traits for each individual, i.e. phen1 and phen 2
+					 nitt=100000,
+					 burnin=1000,
+					 thin=10)
+
+```
+
+Look at the outputs
+
+```{r}
+summary(modelmulti)
+```
+
+Calculate heritabilities
+
+```{r}
+herit1<-modelmulti$VCV[,'traitphen1:traitphen1.animal']/ (modelmulti$VCV[,'traitphen1:traitphen1.animal']+ modelmulti$VCV[,'traitphen1:traitphen1.units'])
+herit2<-modelmulti$VCV[,'traitphen2:traitphen2.animal']/(modelmulti$VCV[,'traitphen2:traitphen2.animal']+modelmulti$VCV[,'traitphen2:traitphen2.units'])
+mean(herit1)
+mean(herit2)
+```
+
+Calculate genetic correlations among the two traits
+```{r}
+corr.gen<-modelmulti$VCV[,'traitphen1:traitphen2.animal']/
+	sqrt(modelmulti$VCV[,'traitphen1:traitphen1.animal']*modelmulti$VCV[,'traitphen2:traitphen2.animal'])
+	mean(corr.gen)
+```
+
+Now run the same thing, but just don't give it a pedigree (i.e. remove that argument altogether)
+
+```{r, eval = FALSE}
+modelmulti_no_ped <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-1 allows us to estimate the mean of each trait, instead of the contrast between the two traits
+					   random=~us(trait):animal, ##  define the structure of the variance-covariance matrix for the random effects 
+					   rcov=~us(trait):units,  ##  define the structure of the variance-covariance matrix for the residual variances
+					   family=c("gaussian","gaussian"), ## family requires a vector with the data distribution of each trait
+					   prior=prior,
+					   # pedigree=pedigreemulti, ## specifies the pedigree; one row for each individual, each column specifies the parents for each individual
+					   data=datamulti, ## includes two traits for each individual, i.e. phen1 and phen 2
+					   nitt=100000,
+					   burnin=1000,
+					   thin=10)
+```
+
+Calculate heritabilities
+
+```{r}
+herit1_no_ped<-modelmulti_no_ped$VCV[,'traitphen1:traitphen1.animal']/ (modelmulti_no_ped$VCV[,'traitphen1:traitphen1.animal']+ modelmulti_no_ped$VCV[,'traitphen1:traitphen1.units'])
+herit2_no_ped<-modelmulti_no_ped$VCV[,'traitphen2:traitphen2.animal']/(modelmulti_no_ped$VCV[,'traitphen2:traitphen2.animal']+modelmulti_no_ped$VCV[,'traitphen2:traitphen2.units'])
+mean(herit1_no_ped)
+mean(herit2_no_ped)
+```
+
+Calculate genetic correlations among the two traits. 
+
+```{r}
+corr.gen_no_ped<-modelmulti_no_ped$VCV[,'traitphen1:traitphen2.animal']/
+	sqrt(modelmulti_no_ped$VCV[,'traitphen1:traitphen1.animal']*modelmulti_no_ped$VCV[,'traitphen2:traitphen2.animal'])
+mean(corr.gen_no_ped)
+```
+
