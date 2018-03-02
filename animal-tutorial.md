@@ -14,7 +14,7 @@
 library(MCMCglmm)
 ```
 
-Read in data
+### Read in data
 
 
 ```r
@@ -23,7 +23,7 @@ datamulti <- read.table('data-raw/datamulti.txt',header=T)
 models_run <- load("data-processed/modelmulti.RData") ## this has all the outputs from the models run in this script.
 ```
 
-Glance at the data
+### Glance at the data
 
 ```r
 head(datamulti)
@@ -78,7 +78,7 @@ prior <- list(R=list(V=diag(2)/2,nu=2),
 		 G=list(G1=list(V=diag(2)/2,nu=2)))
 ```
 
-Set up and run model
+### Set up and run model
 
 
 ```r
@@ -94,7 +94,7 @@ modelmulti <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-1 allow
 					 thin=10)
 ```
 
-Look at the outputs.
+### Look at the outputs with pedigree
 
 
 ```r
@@ -144,7 +144,7 @@ plot(modelmulti$Sol)
 ![](animal-tutorial_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 
-Calculate heritabilities
+Calculate heritabilities with pedigree
 
 
 ```r
@@ -165,7 +165,7 @@ mean(herit2)
 ## [1] 0.3892478
 ```
 
-Calculate genetic correlations among the two traits
+### Calculate genetic correlations among the two traits
 
 ```r
 corr.gen<-modelmulti$VCV[,'traitphen1:traitphen2.animal']/
@@ -176,6 +176,9 @@ corr.gen<-modelmulti$VCV[,'traitphen1:traitphen2.animal']/
 ```
 ## [1] 0.8189895
 ```
+
+
+### No pedigree
 
 Now run the same thing, but just don't give it a pedigree (i.e. remove that argument altogether)
 
@@ -194,7 +197,7 @@ modelmulti_no_ped <- MCMCglmm(cbind(phen1,phen2)~trait-1, ## the notation trait-
 ```
 
 
-Look at output
+### Look at output with no pedigree
 
 ```r
 summary(modelmulti_no_ped)
@@ -264,7 +267,7 @@ mean(herit2_no_ped)
 ## [1] 0.4761585
 ```
 
-Calculate genetic correlations among the two traits. 
+### Calculate genetic correlations among the two traits with no pedigree
 
 
 ```r
